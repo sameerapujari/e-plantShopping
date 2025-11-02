@@ -7,27 +7,31 @@ const CartItem = ({ onContinueShopping }) => {
   const cart = useSelector(state => state.cart.items);
   const dispatch = useDispatch();
 
-  // Calculate total amount for all products in the cart
-  const calculateTotalAmount = () => {
-    return cart.reduce((total, item) => {
-      const price = parseFloat(item.cost.substring(1)); // removes "$" and converts to float
-      return total + price * item.quantity;
-    }, 0).toFixed(2);
+  // Calculate total cost of a single item
+  const calculateTotalCost = (item) => {
+    const cost = parseFloat(item.cost.substring(1));
+    return (cost * item.quantity).toFixed(2);
   };
 
-  const handleContinueShopping = (e) => {
-    onContinueShopping(e);
+  // Calculate total amount for all items in the cart
+  const calculateTotalAmount = () => {
+    return cart
+      .reduce((total, item) => {
+        const cost = parseFloat(item.cost.substring(1));
+        return total + cost * item.quantity;
+      }, 0)
+      .toFixed(2);
   };
 
   const handleIncrement = (item) => {
-    dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
+    dispatch(updateQuantity({ name: item.name, amount: item.quantity + 1 }));
   };
 
   const handleDecrement = (item) => {
     if (item.quantity > 1) {
-      dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+      dispatch(updateQuantity({ name: item.name, amount: item.quantity - 1 }));
     } else {
-      dispatch(removeItem(item.name)); // remove item if quantity drops to 0
+      dispatch(removeItem(item.name));
     }
   };
 
@@ -35,9 +39,9 @@ const CartItem = ({ onContinueShopping }) => {
     dispatch(removeItem(item.name));
   };
 
-  const calculateTotalCost = (item) => {
-    const price = parseFloat(item.cost.substring(1));
-    return (price * item.quantity).toFixed(2);
+  const handleContinueShopping = (e) => {
+    e.preventDefault();
+    onContinueShopping(e);
   };
 
   const handleCheckoutShopping = (e) => {
